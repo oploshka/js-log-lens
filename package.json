@@ -54,5 +54,6 @@
   },
   "main": "./lib/index.js",
   "module": "./lib/index.js",
-  "types": "./lib/index.d.ts"
+  "types": "./lib/index.d.ts",
+  "packageManager": "pnpm@10.24.0"
 }

@@ -9,7 +9,7 @@ The package is intentionally private and must not be published in its current st
 - Confirm available npm name and npm account ownership.
 - Decide release version policy, Node.js/browser compatibility, module format, and declaration files.
 - Add tests as a separate agreed task; run validation against supported runtimes.
-- Generate and commit a lockfile after installing dependencies with the selected package manager.
+- Generate and commit `pnpm-lock.yaml` after installing dependencies with pnpm.
 - Validate lint, build (if introduced), package contents and package import with a packed tarball.
 - Confirm whether releases are manual, npm provenance, or trusted publishing through GitHub Actions.
 - Only then remove `private: true`, set the initial release version and publish.
@@ -17,8 +17,8 @@ The package is intentionally private and must not be published in its current st
 ## Commands for local inspection
 
 ```bash
-npm install
-npm run lint
-npm run check:syntax
-npm run pack:check
+pnpm install
+pnpm lint
+pnpm check:syntax
+pnpm pack:check
 ```

@@ -9,13 +9,13 @@ Configurable JavaScript logger with contextual metadata, flexible filtering, and
 ## Development
 
 ```sh
-npm install
-npm run dev            # Vite app in test/app
-npm run build:library  # Build npm library to lib/
-npm run build:demo     # Build GitHub Pages website to dist/
-npm run typecheck
-npm run lint
-npm run pack:check
+pnpm install
+pnpm dev            # Vite app in test/app
+pnpm build:library  # Build npm library to lib/
+pnpm build:demo     # Build GitHub Pages website to dist/
+pnpm typecheck
+pnpm lint
+pnpm pack:check
 ```
 
 The playground uses Vue only as a development dependency; the library itself is framework-agnostic.
