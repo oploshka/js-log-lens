@@ -1,20 +1,28 @@
 <template>
   <main class="page">
     <header class="topbar">
-      <a class="wordmark" href="./" aria-label="LogLens home">LogLens</a>
-      <a class="github" href="https://github.com/oploshka/js-log-lens">GitHub repository ↗</a>
+      <a class="wordmark" href="./" aria-label="LogLens home">
+        LogLens
+      </a>
+      <a class="github" href="https://github.com/oploshka/js-log-lens">
+        GitHub repository ↗
+      </a>
     </header>
 
     <section class="hero">
       <p class="eyebrow">JavaScript logging library · In development</p>
-      <h1>See logs<br />in context.</h1>
+      <h1>See logs<br>in context.</h1>
       <p class="lead">
         LogLens is an upcoming configurable JavaScript logger focused on contextual metadata,
         module-level diagnostics, and flexible filtering.
       </p>
       <div class="actions">
-        <a class="primary" href="https://github.com/oploshka/js-log-lens/tree/develop">Explore the source</a>
-        <a class="secondary" href="https://github.com/oploshka/js-log-lens/blob/develop/doc/Architecture/Decisions.md">Design decisions</a>
+        <a class="primary" href="https://github.com/oploshka/js-log-lens/tree/develop">
+          Explore the source
+        </a>
+        <a class="secondary" href="https://github.com/oploshka/js-log-lens/blob/develop/doc/Architecture/Decisions.md">
+          Design decisions
+        </a>
       </div>
     </section>
 

@@ -4,7 +4,7 @@ import type { sLogOrigin, tLogArgs, tLogMeta, tLogMethods } from './Type/Log';
 
 export interface sLogAdapterOptions {
   log?: Log;
-  parentLog?: LogAdapter;
+  parentLog?: LogAdapterCore;
   name?: string;
   meta?: tLogMeta;
 }
@@ -24,12 +24,13 @@ function createLogMethods(log: Log, meta: tLogMeta, logger: sLogOrigin): tLogMet
   return methods;
 }
 
-/** Adds consumer-friendly log methods and contextual metadata to a shared Log. */
-export interface LogAdapter extends tLogMethods {}
-
-export class LogAdapter {
+/**
+ * Dynamic methods are installed by the constructor.
+ * Keeping the implementation separate avoids unsafe class/interface declaration merging.
+ */
+class LogAdapterCore {
   readonly name?: string;
-  readonly parentLog?: LogAdapter;
+  readonly parentLog?: LogAdapterCore;
   readonly origin: sLogOrigin;
   private readonly log: Log;
   private readonly _meta: tLogMeta;
@@ -71,3 +72,9 @@ export class LogAdapter {
     }, this.origin);
   }
 }
+
+/** The public instance combines the adapter API and the generated severity methods. */
+export type LogAdapter = LogAdapterCore & tLogMethods;
+
+/** Runtime constructor with a typed instance shape. */
+export const LogAdapter = LogAdapterCore as new (options: sLogAdapterOptions) => LogAdapter;

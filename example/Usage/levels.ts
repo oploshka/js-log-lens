@@ -1,4 +1,5 @@
-import LOG, { LogAdapter, LogEvent, LogLens, ConsoleModule, LogLevel } from '../../src/index';
+import { LOG, LogEvent, LogLens, ConsoleModule, LogLevel } from '../../src/index';
+import type { LogAdapter } from '../../src/index';
 
 LOG.emergency('Application unavailable');
 LOG.alert('Immediate attention required');

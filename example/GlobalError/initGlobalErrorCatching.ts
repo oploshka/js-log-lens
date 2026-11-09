@@ -1,7 +1,7 @@
-import type { iLogger } from '../../src/Type/Log';
+import type { tLogMethods } from '../../src/Type/Log';
 
 /** Опциональный перехват ошибок браузера с возможностью отписаться. */
-export function initGlobalErrorCatching(logger: iLogger): () => void {
+export function initGlobalErrorCatching(logger: tLogMethods): () => void {
   if (typeof window === 'undefined') return () => {};
 
   const onError = (event: ErrorEvent): void => {
