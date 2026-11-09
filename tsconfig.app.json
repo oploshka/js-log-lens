@@ -4,22 +4,22 @@
     "./tsconfig.paths.json"
   ],
   "compilerOptions": {
-    "types": [
-      "vite/client"
-    ],
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "types": ["vite/client"],
     "allowJs": true,
     "checkJs": false,
+
+    /* Linting */
     "strict": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
   },
   "include": [
-    "src/**/*.js",
-    "src/**/*.ts",
-    "test/**/*.ts",
-    "test/**/*.js",
-    "test/**/*.vue",
-    "example/**/*.ts",
-    "example/**/*.js"
+    "src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.vue",
+    "test/**/*.ts", "test/**/*.tsx", "test/**/*.js", "test/**/*.vue",
+    "example/**/*.ts", "example/**/*.tsx", "example/**/*.js", "example/**/*.vue"
   ]
 }
