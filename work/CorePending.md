@@ -1,34 +1,35 @@
-# Open design questions — LogLens core
+# Open questions — LogLens
 
-## Meta (implemented)
+Only decisions that are not yet settled belong here. Implemented architecture and public API are described in [Implementation](../doc/Architecture/Implementation.md).
 
-- `LogAdapter.child(name, meta)` keeps a real `parentLog` reference and snapshots merged metadata.
-- `LogAdapter.meta(meta)` produces only severity methods for a one-off context.
-- System-origin information belongs in `logInfo.logger`, not user `meta`.
-- TODO: decide whether unnamed ancestors should appear in formatted paths and whether origin details beyond names are necessary.
+## Caller trace and browser DevTools
 
-## Trace / DevTools
-
-Potential design: capture an `Error` at the logging callsite, expose a lazily evaluated and locally cached trace to interested modules. A fresh Error is necessary per call; binding `this` or caching one stack across calls cannot recover distinct callsites.
-Investigate the effect on browser DevTools caller location separately. A module must not know the number of internal stack frames. Benchmark cost before committing to a mandatory capture.
+- Determine how to preserve the original logging callsite when a module ultimately invokes `console.log`.
+- Consider an optional, lazily resolved trace captured at each log invocation. Do not cache a callsite across separate calls or make stack collection mandatory without measuring the cost.
+- Validate behavior in Chrome and Firefox through the `#devtools` page of `test/app`.
 
 ## Disposal
 
-Should `LogLens.dispose()` exist publicly, and should already returned `Log` instances stop emitting, continue silently, or remain operational with no modules? Do not finalize without discussion.
+Define the public contract for `LogLens.dispose()` and for adapters retained after disposal: continue emitting into an empty bus, stop logging, or another documented behavior.
 
-## Log record immutability
+## Record immutability
 
-Currently a rule for consumers; decide whether the library should enforce shallow/deep immutability or use immutable views. Avoid freezing user-provided objects in `args`.
+Decide whether to enforce immutable record views or keep the existing consumer contract. Avoid deep-freezing arbitrary objects in `args`.
 
-## Error and async corner cases
+## Async errors
 
-Synchronous module errors are isolated and reported to native console. `run()` may schedule async work, and must handle its own rejections. Confirm expectations for async methods accidentally returning a rejected promise and the failure policy for exceptional lifecycle methods.
+Specify the policy for listeners or modules that return rejected promises. Synchronous exceptions are already isolated; asynchronous work currently belongs to its owner.
 
-## Verification status
+## Module lifecycle and validation
 
-Node.js unit tests added in `test/unit`, using the built library; run `pnpm test` after installing dependencies.
-The full package build, TypeScript project checks, ESLint and real DevTools checks have not been executed in this environment because the npm registry is unreachable. Manual browser checks are available at `#devtools` in `test/app/Page/ConsoleDevTools.vue`.
+- `GlobalErrorModule` registers browser event handlers in `install()`; manager `disable()` stops only its LogEvent subscription, not these browser handlers. Decide whether producer modules need active-state hooks.
+- Define validation for module settings and required dependencies.
 
-## Producer module enable/disable
+## Remaining API decisions
 
-`GlobalErrorModule` listens to browser events in its lifecycle; manager `disable()` only stops LogEvent dispatch to its no-op `run()`. Decide whether producer modules need a separate active-state notification or should be removed to stop collection.
+- Decide whether unnamed logger ancestors should appear in formatted paths and whether origins need further system fields.
+- Decide how closely to follow the full PSR-3 interface beyond the eight severity names.
+
+## Before publishing
+
+Finalize package/runtime support, npm release policy and public API stability in [Publishing](../doc/Package/Publishing.md). These are release gates, not blockers for experimenting in `develop`.
