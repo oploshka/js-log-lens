@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@loglens/*": ["./src/*"],
+      "@app/*": ["./test/app/*"],
+      "@example/*": ["./example/*"],
+      "js-log-lens": ["./src/index.ts"]
+    }
+  }
+}

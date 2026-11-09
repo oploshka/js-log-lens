@@ -1,0 +1,25 @@
+{
+  "extends": [
+    "@vue/tsconfig/tsconfig.dom.json",
+    "./tsconfig.paths.json"
+  ],
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "types": ["vite/client"],
+    "allowJs": true,
+    "checkJs": false,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": [
+    "src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.vue",
+    "test/**/*.ts", "test/**/*.tsx", "test/**/*.js", "test/**/*.vue",
+    "example/**/*.ts", "example/**/*.tsx", "example/**/*.js", "example/**/*.vue"
+  ]
+}
