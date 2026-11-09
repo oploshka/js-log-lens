@@ -31,12 +31,15 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
       - name: Install dependencies
         # TODO: replace with --frozen-lockfile once pnpm-lock.yaml is committed.
         run: pnpm install --no-frozen-lockfile
 
-      - name: Build website
-        run: pnpm build:demo
+      - name: Build website for GitHub Pages
+        run: pnpm build:pages
 
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3

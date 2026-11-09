@@ -41,7 +41,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "pack:check": "pnpm build:library && npm pack --dry-run --ignore-scripts",
-    "test": "pnpm build:library && node --test test/unit/*.test.mjs"
+    "test": "pnpm build:library && node --test test/unit/*.test.mjs",
+    "build:pages": "vite build --config vite.demo.config.ts --mode ph-pages"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",

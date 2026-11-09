@@ -13,7 +13,8 @@ pnpm install
 pnpm serve          # Vite test/app with live reload (HMR)
 pnpm dev            # Alias for the same development app
 pnpm build:library  # Build npm library to lib/
-pnpm build:demo     # Build GitHub Pages website to dist/
+pnpm build:demo     # Build local demo to dist/ (base /)
+pnpm build:pages    # Build GitHub Pages website to dist/ (base /js-log-lens/)
 pnpm typecheck
 pnpm test           # Build library and run Node.js unit tests
 pnpm lint
@@ -36,8 +37,12 @@ Pending API choices: [Decisions](doc/Architecture/Decisions.md).
 
 ## GitHub Pages
 
-The [Pages workflow](.github/workflows/pages.yml) builds `test/app` with Vite on pushes to `develop`, or when manually dispatched.
-In the repository's **Settings → Pages**, select **GitHub Actions** as the Build and deployment source.
+The [Pages workflow](.github/workflows/pages.yml) builds `test/app` with `pnpm build:pages` and uploads `dist/` on pushes to `develop` or when manually dispatched.
+
+**Required one-time repository setting:** open [Settings → Pages](https://github.com/oploshka/js-log-lens/settings/pages) and set **Build and deployment → Source: GitHub Actions**. Until GitHub Pages is enabled, `actions/deploy-pages` returns HTTP 404 (`Ensure GitHub Pages has been enabled`), even when the build and artifact upload succeed. The GitHub connector cannot modify this repository setting.
+
+Vite keeps `index.html` inside its configured `root: test/app` and uses `base: '/'` for `pnpm serve` / `pnpm build:demo`, versus `base: '/js-log-lens/'` for `pnpm build:pages`. Page selection uses `#example` / `#devtools`, so GitHub Pages needs no SPA fallback or history-mode router configuration.
+
 The site is separate from the npm library output.
 
 > Not yet publishable. `private: true` is intentional.
