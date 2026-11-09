@@ -60,3 +60,17 @@ footer { border-top: 1px solid #293246; padding: 25px 0 35px; display: flex; fle
   .workspace { grid-template-columns: 1fr; }
   .entries { height: 420px; }
 }
+
+.page-nav { display: flex; align-items: center; gap: 8px; }
+.page-nav a { color: #aebbd2; font-size: 13px; padding: 9px 12px; border: 1px solid transparent; border-radius: 8px; }
+.page-nav a:hover, .page-nav a[aria-current="page"] { color: #edf2fb; border-color: #3b4c67; background: #212c41; }
+.devtools-guide { min-height: 480px; }
+.guide-content { padding: 20px 24px; color: #b6c4da; line-height: 1.7; font-size: 14px; }
+.guide-content ol { padding-left: 22px; }
+.guide-content li { margin: 10px 0; }
+.guide-content code { background: #101725; border: 1px solid #2c3a50; padding: 2px 5px; border-radius: 4px; font-size: 12px; }
+.guide-content strong { color: #f4d6aa; }
+@media (max-width: 700px) {
+  .topbar { flex-wrap: wrap; gap: 12px; }
+  .page-nav { order: 3; width: 100%; }
+}

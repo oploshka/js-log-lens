@@ -26,8 +26,8 @@ Synchronous module errors are isolated and reported to native console. `run()` m
 
 ## Verification status
 
-Node.js core tests added in `test/core`, using the built library; run `pnpm test` after installing dependencies.
-The full package build, TypeScript project checks, ESLint and real DevTools checks have not been executed in this environment because the npm registry is unreachable. A browser manual procedure is in `test/browser/ConsoleDevTools.md`.
+Node.js unit tests added in `test/unit`, using the built library; run `pnpm test` after installing dependencies.
+The full package build, TypeScript project checks, ESLint and real DevTools checks have not been executed in this environment because the npm registry is unreachable. Manual browser checks are available at `#devtools` in `test/app/Page/ConsoleDevTools.vue`.
 
 ## Producer module enable/disable
 

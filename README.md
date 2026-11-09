@@ -14,7 +14,7 @@ pnpm dev            # Vite app in test/app
 pnpm build:library  # Build npm library to lib/
 pnpm build:demo     # Build GitHub Pages website to dist/
 pnpm typecheck
-pnpm test           # Build library and run Node.js core tests
+pnpm test           # Build library and run Node.js unit tests
 pnpm lint
 pnpm pack:check
 ```
@@ -24,7 +24,8 @@ The playground uses Vue only as a development dependency; the library itself is 
 ## Structure
 
 - `src/` — library source; no business-specific adapters.
-- `test/app/` — interactive development playground with log controls and a test-only page history module.
+- `test/app/` — interactive playground with log controls, a live-history module and a DevTools verification page.
+- `test/unit/` — Node.js tests for the library.
 - `example/` — consumer integration examples; `Install/SetupLogger.ts` is used by the test app at bootstrap.
 - `doc/` — architecture decisions, tooling and publishing notes.
 - `work/` — unresolved working context.
