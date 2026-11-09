@@ -1,49 +1,35 @@
 import { Log } from './Log';
 import { LogEvent } from './LogEvent';
-import type { iLogModule, tTimestampProvider } from './Type/Log';
+import { LogLensModule } from './LogLensModule';
+import { LogLensModuleManager } from './LogLensModuleManager';
+import type { tTimestampProvider } from './Type/Log';
 
-/** Assembles one LogEvent, zero or more modules, and a Log instance. */
+/** Combines one event bus, its module manager, and the logger. */
 export class LogLens {
   readonly event: LogEvent;
-  private readonly modules: iLogModule[] = [];
-  private readonly disposers: Array<() => void> = [];
-  private logger?: Log;
+  readonly modules: LogLensModuleManager;
+  private readonly logger: Log;
   private disposed = false;
 
-  constructor(
-    event: LogEvent = new LogEvent(),
-    private readonly now: tTimestampProvider = Date.now,
-  ) {
+  constructor(event: LogEvent = new LogEvent(), now: tTimestampProvider = Date.now) {
     this.event = event;
+    this.modules = new LogLensModuleManager(event);
+    this.logger = new Log(event, now);
   }
 
-  use(module: iLogModule): this {
-    if (this.logger || this.disposed) {
-      throw new Error('Modules must be registered before build()');
-    }
-    this.modules.push(module);
+  use(name: string, module: LogLensModule<any, any>): this {
+    this.modules.add(name, module);
     return this;
   }
 
   build(): Log {
-    if (this.disposed) {
-      throw new Error('LogLens has been disposed');
-    }
-    if (this.logger) return this.logger;
-
-    for (const module of this.modules) {
-      const dispose = module.install(this.event);
-      if (dispose) this.disposers.push(dispose);
-    }
-
-    this.logger = new Log(this.event, this.now);
+    if (this.disposed) throw new Error('LogLens has been disposed');
     return this.logger;
   }
 
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
-    for (const dispose of this.disposers.reverse()) dispose();
-    this.disposers.length = 0;
+    this.modules.dispose();
   }
 }

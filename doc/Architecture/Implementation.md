@@ -1,6 +1,6 @@
 # Class-based logger prototype
 
-## Entry format
+## Entry structure
 
 ```ts
 {
@@ -10,25 +10,28 @@
 }
 ```
 
-## Responsibilities
+## Components
 
-- `Log`: eight PSR-3 severity methods, each forwarding a structured record to its `LogEvent`.
-- `LogEvent`: `emitLog`, `subscribe`, `unsubscribe`; no knowledge of filtering or modules.
-- `iLogModule`: `install(event)` may register listeners and return a disposer.
-- `ConsoleModule`: migrated console styling and output.
-- `LogLens`: assembler; `use(module)`, `build()` and `dispose()`.
-- `LOG`: convenience instance assembled with a console module.
+- `Log` creates structured entries with the eight PSR-3 severity methods.
+- `LogEvent` broadcasts entries, without filtering or module semantics.
+- `LogLensModule<TSettings, TDependencies>` implements basic lifecycle (`install/uninstall`), pass-through `filter`, configurable `run`, and `setSettings`, `mergeSettings`, `getSettings`.
+- `LogLensModuleManager` owns subscriptions and enables, disables, adds, or removes named module instances.
+- `LogLens` bundles the event, manager and logger. `use(name, module)` is a shorthand for `modules.add(name, module)`.
+- `ConsoleModule` supplies console output with its own defaults and optional injected console dependency.
 
-Modules are installed once at `build()`. `build()` is idempotent; new modules cannot be added after it.
-Disposing stops module subscriptions, but does not disable the previously returned logger.
+`setSettings` replaces settings, `mergeSettings` performs a shallow update.
+Module defaults come from the concrete class's static `getDefaultSettings()` via `this.constructor` in the base constructor.
+TypeScript does not support `abstract static`, so compile-time enforcement of overrides is not available.
+Constructors receive `{ dependencies?, settings? }` through one `super(options)` call.
+
+`add()` calls `install()`, registers a listener; `disable()` only prevents dispatch; `remove()` unsubscribes and calls `uninstall()`.
+The manager also handles registrations after the logger has been built.
+`dispose()` unregisters all modules but does not invalidate a previously returned `Log`.
 
 ## TODO
 
-- Contextual `meta` / scoped logger API; currently empty by design.
-- Caller location in browser DevTools: original console-bound `Proxy` cannot be preserved by the generic subscriber pipeline without further design.
-- Original `loglevel` environment-level filtering and critical-level server delivery are not automatic; these belong in optional modules/filters.
-- Confirm whether errors in one subscriber should propagate; currently they do.
-- Async listeners are not awaited. Define async and exception policies.
-- Decide whether modules may be registered dynamically after `build()`.
-- Extend or replace the network example with a proper `NetworkModule` when its configuration contract is agreed.
-- Clarify full PSR-3 compliance vs matching severity names.
+- Contextual `meta` / scoped logger API.
+- Browser DevTools caller location (previous console-bound `Proxy` implementation).
+- Module settings validation and enforcement of required dependencies.
+- Error isolation across subscribers and asynchronous lifecycle conventions.
+- Full PSR-3 compliance vs matching severity names.

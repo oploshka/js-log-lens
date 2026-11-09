@@ -24,10 +24,4 @@ export interface sLogStructure {
 }
 
 export type tLogListener = (entry: sLogStructure) => void;
-
-/** A module may subscribe to events; returning a disposer is optional. */
-export interface iLogModule {
-  install(event: import('../LogEvent').LogEvent): void | (() => void);
-}
-
 export type tTimestampProvider = () => number;
