@@ -1,6 +1,6 @@
 # npm publishing checklist
 
-The package is intentionally `private: true`, version `0.0.0`, and is **not ready for publication**. The TypeScript core and ESM build exist, but the release contract is not yet finalized.
+The package is intentionally `private: true`, version `0.1.0`, and is **not ready for publication**. The TypeScript core and ESM build exist, but the release contract is not yet finalized.
 
 ## Already available
 
@@ -16,7 +16,7 @@ These are implementation facts, **not** confirmation that all release checks hav
 - Stabilize the public API and document runtime/browser compatibility and the Node.js support matrix.
 - Choose a license and add a license file and package metadata.
 - Confirm npm package-name availability and access to the publishing account.
-- Decide initial version, release process, ESM-only versus additional module formats and package export policy.
+- Decide release process, ESM-only versus additional module formats and package export policy.
 - Validate TypeScript checks, ESLint, unit tests and the library build on supported runtimes.
 - Test package contents and imports from a packed artifact (including type declarations).
 - Decide between manual publishing, npm provenance or GitHub Actions trusted publishing.
