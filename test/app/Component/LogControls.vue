@@ -22,9 +22,10 @@ const levels = Object.values(LogLevel);
         :key="level"
         type="button"
         class="level-button"
+        :class="`level-${level}`"
         @click="logLevel(log, level)"
       >
-        <span class="level-dot" :class="'dot-' + level" />
+        <span class="level-dot"  />
         {{ level }}
       </button>
     </div>

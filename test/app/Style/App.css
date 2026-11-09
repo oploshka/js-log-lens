@@ -24,14 +24,31 @@ h1 { margin: 0; font-size: clamp(48px, 7vw, 82px); line-height: 1; letter-spacin
 .section-heading span, .panel-header span { font-size: 12px; color: #91a1bd; }
 .level-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .level-button, .context-actions button, .panel-actions button { color: #edf2fb; background: #212c41; border: 1px solid #3b4c67; border-radius: 9px; }
-.level-button { padding: 13px 12px; display: flex; align-items: center; gap: 10px; text-align: left; text-transform: capitalize; }
+.level-button {
+  --level-accent: #94a3b8;
+  --level-border: #526176;
+  padding: 13px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  text-transform: capitalize;
+  border-color: var(--level-border);
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.level-emergency { --level-accent: #f472b6; --level-border: #844565; }
+.level-alert { --level-accent: #fb923c; --level-border: #855438; }
+.level-critical { --level-accent: #fb7185; --level-border: #854253; }
+.level-error { --level-accent: #f87171; --level-border: #844949; }
+.level-warning { --level-accent: #fbbf24; --level-border: #80703b; }
+.level-notice { --level-accent: #67e8f9; --level-border: #3d7780; }
+.level-info { --level-accent: #4ade80; --level-border: #3c7858; }
+.level-debug { --level-accent: #a5b4fc; --level-border: #555e8c; }
+.level-button:hover { border-color: var(--level-accent); background: #2b364b; }
+.level-button:focus-visible { outline: 2px solid var(--level-accent); outline-offset: 2px; }
 button:hover { background: #304261; }
 button:focus-visible { outline: 2px solid #a6c1ff; outline-offset: 2px; }
-.level-dot { width: 8px; height: 8px; border-radius: 50%; background: #899bb4; }
-.dot-emergency, .dot-alert, .dot-critical, .dot-error { background: #f17e91; }
-.dot-warning { background: #eeb46e; }
-.dot-notice, .dot-info { background: #76b7fc; }
-.dot-debug { background: #a4b3c9; }
+.level-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--level-accent); flex: none; }
 .second-heading { margin-top: 32px; }
 .context-actions { display: flex; flex-direction: column; gap: 10px; }
 .context-actions button { padding: 13px 14px; text-align: left; font-size: 13px; }
