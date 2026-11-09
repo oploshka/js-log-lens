@@ -3,7 +3,7 @@ import { LogAdapter } from './LogAdapter';
 import { LogEvent } from './LogEvent';
 import type { iLogLensModule } from './LogLensModule';
 import { LogLensModuleManager } from './LogLensModuleManager';
-import { reportLogLensError } from './reportLogLensError';
+import { reportLogLensError } from './ReportLogLensError';
 import type { tTimestampProvider } from './Type/Log';
 
 /** Combines one event bus, its module manager, and a public log adapter. */

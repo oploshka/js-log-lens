@@ -1,5 +1,5 @@
 import type { sLogStructure, tLogListener } from './Type/Log';
-import { reportLogLensError } from './reportLogLensError';
+import { reportLogLensError } from './ReportLogLensError';
 
 /** Synchronous fan-out; does not modify the entry or await listeners. */
 export class LogEvent {

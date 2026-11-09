@@ -1,7 +1,7 @@
 import { LogEvent } from './LogEvent';
 import type { iLogLensModule } from './LogLensModule';
 import type { sLogStructure } from './Type/Log';
-import { reportLogLensError } from './reportLogLensError';
+import { reportLogLensError } from './ReportLogLensError';
 
 type tRegisteredModule = {
   module: iLogLensModule;
