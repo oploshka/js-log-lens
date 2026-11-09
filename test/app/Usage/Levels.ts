@@ -1,7 +1,7 @@
 import { LogLevel } from 'js-log-lens';
 import type { LogAdapter } from 'js-log-lens';
 
-/** Playground actions; regular application setup belongs in example/Project. */
+/** Playground actions; regular application setup belongs in example/Install. */
 export function logLevel(log: LogAdapter, level: LogLevel): void {
   const payload = {
     createdAt: new Date().toISOString(),

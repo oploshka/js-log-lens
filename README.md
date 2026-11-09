@@ -25,7 +25,7 @@ The playground uses Vue only as a development dependency; the library itself is 
 
 - `src/` — library source; no business-specific adapters.
 - `test/app/` — interactive development playground with log controls and a test-only page history module.
-- `example/` — consumer integration examples, including project setup and network transport.
+- `example/` — consumer integration examples; `Install/SetupLogger.ts` is used by the test app at bootstrap.
 - `doc/` — architecture decisions, tooling and publishing notes.
 - `work/` — unresolved working context.
 
