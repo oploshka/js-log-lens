@@ -32,4 +32,4 @@ Specify the policy for listeners or modules that return rejected promises. Synch
 
 ## Before publishing
 
-Finalize package/runtime support, npm release policy and public API stability in [Publishing](../doc/Package/Publishing.md). These are release gates, not blockers for experimenting in `develop`.
+Prepare the planned `0.1.1` beta release in `develop`: select a license, confirm npm package name/ownership, validate the packed artifact and choose an npm publication mechanism. The version bump and repository-standard merge into `master` happen only after those checks. See [Publishing](../doc/Package/Publishing.md).

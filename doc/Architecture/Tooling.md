@@ -21,7 +21,7 @@ Vite's `root` is `test/app`, so `index.html` remains **there**, not at the repos
 - `@example/*` → `example/*`
 - `js-log-lens` → `src/index.ts` during local development
 
-The public package entry point is `src/index.ts`; Vite builds the ESM library into `lib/` and TypeScript emits declaration files. The package is currently marked `private: true` and has version `0.1.0`.
+The public package entry point is `src/index.ts`; Vite builds the ESM library into `lib/` and TypeScript emits declaration files. The package is currently marked `private: true` and has version `0.1.0`; the next planned npm beta release is `0.1.1` (bumped immediately before the release merge).
 
 ## Commands
 

@@ -2,9 +2,25 @@
 
 Configurable JavaScript logger with contextual metadata, flexible filtering, and PSR-3 severity levels.
 
-**Status:** Version `0.1.0` (experimental API), not yet published to npm. The logging core and modules are implemented; release policies and some behavior contracts remain open.
+**Status:** Experimental **beta-stage** API. The repository is at `0.1.0`; `0.1.1` is planned for the next release. **The package is not published to npm yet.** Public interfaces and behavior may change.
+
+**For early adopters:** after an npm release is available, **pin the exact version** (no `^`, `~` or broad range). Commit your package lockfile; review changes before upgrading. This is not yet a stable production API.
 
 **Project site:** [oploshka.github.io/js-log-lens](https://oploshka.github.io/js-log-lens/) (publication depends on repository Pages and environment permissions).
+
+## Beta installation policy
+
+Once version `0.1.1` has actually been published, install it with an exact version:
+
+```sh
+npm install --save-exact js-log-lens@0.1.1
+# or
+pnpm add --save-exact js-log-lens@0.1.1
+```
+
+The planned npm distribution tag is `beta`, not `latest`. **These commands are examples for after publication**, not confirmation that `0.1.1` is available.
+
+See the [beta release checklist](doc/Package/Publishing.md) for the release gates.
 
 ## Development
 
