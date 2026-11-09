@@ -1,22 +1,22 @@
 # Package manager
 
-Use `pnpm` for dependency installation and project scripts, following the active `vue-dlg` development branch.
+Use `pnpm` for dependencies and project scripts, as in `vue-dialog/develop`. The configured package-manager version is recorded in `package.json`.
 
 ```sh
 corepack enable
 pnpm install
-pnpm dev
-pnpm build:library
+pnpm serve
 pnpm typecheck
 pnpm lint
+pnpm test
+pnpm build:library
+pnpm build:pages
 ```
 
-The pnpm version is pinned using `packageManager` in `package.json`.
+## Lockfile and CI
 
-## TODO: lockfile
+`pnpm-lock.yaml` is present in the repository. Keep it synchronized with `package.json` and commit updates whenever dependencies change.
 
-The initial scaffold has no `pnpm-lock.yaml`.
-Generate it locally with `pnpm install` and commit it.
-After that, replace `pnpm install --no-frozen-lockfile` in the Pages workflow with `pnpm install --frozen-lockfile` and enable pnpm caching in `actions/setup-node`.
+The Pages workflow still installs with `pnpm install --no-frozen-lockfile`. A follow-up tooling change should verify lockfile compatibility with the configured pnpm version, switch CI to `--frozen-lockfile` and optionally configure pnpm caching.
 
-Do not copy the lockfile from `vue-dlg`: its dependency graph is different.
+Do not copy the lockfile from `vue-dlg`: the dependency graph is different.

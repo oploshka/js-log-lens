@@ -1,25 +1,29 @@
-# Class-based logger architecture
+# LogLens implementation
 
-## Public API
+## Core and public API
 
 ```ts
+import { ConsoleModule, LogLens } from 'js-log-lens';
+
+const lens = new LogLens().use('console', new ConsoleModule());
 const log = lens.build();
-log.debug('Connected');
+
+log.debug('Application started');
 
 const ws = log.child('WebSocket', { module: 'ws' });
 const connection = ws.child('Connection', { connectionId: '123' });
-connection.debug('Connected');
-connection.meta({ requestId: 42 }).info('Message', { id: 123 });
+connection.info('Connected', { attempt: 1 });
+connection.meta({ requestId: 42 }).debug('Request', { id: 123 });
 ```
 
-- `Log` keeps eight PSR-3 severity methods; each accepts an internal structured command `{ args, meta, logger? }`.
-- `LogAdapter` exposes variadic severity methods generated from `LogLevel` without a Proxy or eight duplicate wrappers. A mapped type describes the generated methods.
-- `child(name, meta)` returns a new full adapter referencing its parent. `child(meta)` also supports unnamed children.
-- `meta(meta)` returns **only** the eight severity methods, not another adapter; both forms share the same generator.
-- Each child captures an immutable shallow merge of parent and local metadata. New keys win. No modification of parent metadata.
-- `LogLens.build()` returns the root `LogAdapter`. All descendants share one internal `Log` and `LogEvent`.
+`LogLens` assembles one `LogEvent`, one `LogLensModuleManager` and one internal `Log`. `build()` returns the root `LogAdapter`. Descendants share the underlying emitter.
 
-## Entry structure
+- Internal `Log`: eight severity methods taking `{ args, meta, logger? }`.
+- Public `LogAdapter`: eight variadic methods generated once per adapter from `LogLevel`, typed by `tLogMethods`, without Proxy.
+- `child(name, meta?)` or `child(meta)`: creates a new adapter with `parentLog` and shallow-merged metadata; a child's values take precedence.
+- `meta(meta)`: returns only the eight log methods, with additional metadata for calls made through the returned object. It cannot be chained into another `child()` or `meta()`.
+
+## Entry format
 
 ```ts
 {
@@ -31,40 +35,37 @@ connection.meta({ requestId: 42 }).info('Message', { id: 123 });
       parent: { name: 'WebSocket', parent: rootOrigin },
     },
   },
-  args: ['Message received', payload],
-  meta: { module: 'ws', connectionId: '123' },
+  args: ['Request', { id: 123 }],
+  meta: { module: 'ws', connectionId: '123', requestId: 42 },
 }
 ```
 
-`logInfo.logger` is a reference to the originating adapter's immutable descriptor. The descriptor links to the parent's descriptor; there is no per-message path traversal or array allocation. The adapter itself separately retains `parentLog`. Caller trace remains a separate TODO.
+The sample illustrates the **shape**; `logger` is a reference to a shared, frozen origin descriptor, not a fresh nested tree constructed on each log call. The root descriptor and unnamed ancestors can have no `name`. `logInfo` stores system data; `meta` stores user data; original `args` stay separate.
 
-## Modules
+`Log` shallow-copies metadata into each entry. The event bus does not deep-freeze entries or user-provided arguments. Consumers must not mutate shared records.
 
-- `LogEvent` synchronously broadcasts records and never mutates them or awaits listeners.
-- `LogLensModule<TSettings, TDependencies>` provides default lifecycle, pass-through filter, abstract run and settings.
-- `LogLensModuleManager` owns registrations and subscriptions, calls `filter(entry)` before `run(entry)`, and manages lifecycle.
-- `ConsoleModule` provides console output.
-- `GlobalErrorModule` registers browser `error` and `unhandledrejection` listeners in `install()`, removes them in `uninstall()`, and forwards errors through a logger dependency. As an event producer, it does not process LogEvent records in `run()`.
-- `NetworkModule<TPayload>` uses consumer-provided `transform(entry)` and `request(payload)` functions. Request failures are caught and reported via an optional `onError`; transport policy and data format belong to the consumer.
-- History remains an independent prospective module.
+## Event and module handling
 
-`setSettings` replaces settings; `mergeSettings` shallow-merges. Defaults come from a concrete module's `getDefaultSettings()`; constructors accept `{ dependencies?, settings? }`.
+`LogEvent` broadcasts synchronously to subscribed listeners; subscriptions return a disposer. It does not store history and does not await listeners.
 
-## Fault isolation
+`LogLensModule<TSettings, TDependencies>` defines `install()`, `uninstall()`, `filter(entry)`, `run(entry)`, `setSettings()`, `mergeSettings()` and `getSettings()`. Settings are initialized from the concrete module's `getDefaultSettings()` and options passed to its constructor.
 
-**The logging system must not stop the host application.** Module and listener failures are reported directly to native console and dispatch continues. Duplicate registration is diagnosed without throwing. `enable/disable` only toggle delivery; `add/remove` change registrations.
+`LogLensModuleManager` supports `add`, `remove`, `enable`, `disable`, `isEnabled`, `get` and `dispose`. It subscribes registered modules to the event bus, checks the module filter before running, and cleans up on removal or disposal. Errors in synchronous listeners, module processing and lifecycle hooks are reported directly through native console to avoid recursion and to preserve delivery to other subscribers.
 
-## Immutability / sync
+Current modules:
 
-Synchronous fan-out does not await async modules. Consumers must not mutate a shared record, its args, or its metadata. The library performs a shallow copy of record metadata, not a deep freeze of user arguments.
+- `ConsoleModule` — styled output via the native console, with optional metadata display.
+- `GlobalErrorModule` — installs/removes browser `error` and `unhandledrejection` handlers; forwards them through a supplied logger. No-op source module `run()`.
+- `NetworkModule<TPayload>` — invokes consumer-supplied `transform(entry)` and `request(payload)`; catches synchronous failures and rejected request promises, reporting through `onError` when provided.
 
-## TODO
+Example integrations live in `example/`. The `PageLogModule` is intentionally **test-only** and lives under `test/app/Module/`.
 
-- Browser DevTools callsite and optional lazy trace collection.
-- Final disposal semantics and module setting validation.
-- Exception isolation for asynchronous rejections and full PSR-3 interface compatibility.
+## Current boundaries
 
+- Manager `disable()` stops delivery to a module's `run()`; it does **not** remove native browser handlers installed by `GlobalErrorModule`. Use `remove()` to unhook them.
+- Asynchronous user listeners and arbitrary module async work are not awaited by `LogEvent`; callers must handle their own rejections. The network module handles its own request rejections.
+- `LogLens.dispose()` removes modules but does not currently invalidate already returned adapters. Its final public semantics remain open.
+- The browser DevTools location may point into `ConsoleModule` rather than the consumer callsite. Manual checks are available in `test/app` at `#devtools`; optional trace capture is not implemented.
+- The library exposes PSR-3 severity **names**, not a verified complete PSR-3 contract.
 
-## Pending lifecycle detail
-
-Disabling a producer module such as `GlobalErrorModule` does not remove native browser listeners; that only happens on `remove()`/`dispose()`. Decide later whether manager enable/disable should affect producer activity too.
+Open questions are maintained in [work/CorePending.md](../../work/CorePending.md).

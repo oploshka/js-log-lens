@@ -2,9 +2,9 @@
 
 Configurable JavaScript logger with contextual metadata, flexible filtering, and PSR-3 severity levels.
 
-**Status:** Early development. The public API and metadata model are being designed; the package is not yet published to npm.
+**Status:** Experimental API, not yet published to npm. The logging core and modules are implemented; release policies and some behavior contracts remain open.
 
-**Project site:** [oploshka.github.io/js-log-lens](https://oploshka.github.io/js-log-lens/) (GitHub Pages, requires Pages deployment to be enabled in repository settings).
+**Project site:** [oploshka.github.io/js-log-lens](https://oploshka.github.io/js-log-lens/) (publication depends on repository Pages and environment permissions).
 
 ## Development
 
@@ -33,13 +33,13 @@ The playground uses Vue only as a development dependency; the library itself is 
 - `work/` — unresolved working context.
 
 Alias details: [Tooling](doc/Architecture/Tooling.md).
-Pending API choices: [Decisions](doc/Architecture/Decisions.md).
+Adopted API decisions: [Decisions](doc/Architecture/Decisions.md). Open questions: [CorePending](work/CorePending.md).
 
 ## GitHub Pages
 
 The [Pages workflow](.github/workflows/pages.yml) builds `test/app` with `pnpm build:pages` and uploads `dist/` on pushes to `develop` or when manually dispatched.
 
-**Required one-time repository setting:** open [Settings → Pages](https://github.com/oploshka/js-log-lens/settings/pages) and set **Build and deployment → Source: GitHub Actions**. Until GitHub Pages is enabled, `actions/deploy-pages` returns HTTP 404 (`Ensure GitHub Pages has been enabled`), even when the build and artifact upload succeed. The GitHub connector cannot modify this repository setting.
+**Required repository settings:** [Settings → Pages](https://github.com/oploshka/js-log-lens/settings/pages) must use **GitHub Actions** as the deployment source, and the `github-pages` environment must allow deployments from the workflow branch. The workflow currently triggers from `develop`; switching to `master` has been discussed but not implemented. See [Website](doc/Package/Website.md).
 
 Vite keeps `index.html` inside its configured `root: test/app` and uses `base: '/'` for `pnpm serve` / `pnpm build:demo`, versus `base: '/js-log-lens/'` for `pnpm build:pages`. Page selection uses `#example` / `#devtools`, so GitHub Pages needs no SPA fallback or history-mode router configuration.
 
@@ -47,7 +47,7 @@ The site is separate from the npm library output.
 
 > Not yet publishable. `private: true` is intentional.
 
-## Logger prototype
+## Logger API
 
 The TypeScript core uses `Log`, `LogAdapter`, `LogEvent`, `LogLens`, and installable modules.
 

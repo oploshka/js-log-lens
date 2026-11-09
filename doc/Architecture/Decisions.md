@@ -1,26 +1,39 @@
 # Architecture decisions
 
-## Agreed direction
+This document records **implemented decisions**. Remaining design questions are tracked in [work/CorePending.md](../../work/CorePending.md).
 
-The library should be reusable across projects and highly configurable.
-Logging payload arguments and logger metadata are distinct concepts.
-Multiple contextual loggers may share one underlying store.
-Network delivery is a consumer-provided callback; a working adapter belongs in `example/`, not the core runtime.
-The original chaining proposal `LOG.debug(...).scope(...)` is dropped.
-Formatting and scope filtering are not yet part of the agreed core API.
+## Public logging API
 
-## TODO — public contracts
+- LogLens is a framework-agnostic TypeScript logging library with the eight PSR-3 **severity names**: `emergency`, `alert`, `critical`, `error`, `warning`, `notice`, `info`, `debug`. Full PSR-3 API compatibility is not claimed.
+- `Log` is the structured internal emitter. Each severity method accepts a single `{ args, meta, logger? }` object.
+- `LogLens.build()` returns a public `LogAdapter` with console-style variadic logging methods.
+- `LogAdapter.child(name, meta?)` and `child(meta)` create scoped adapters. A child retains a reference to its parent, inherits the parent's metadata and shallowly overrides it with local metadata.
+- `LogAdapter.meta(meta)` returns **only severity methods**, not another full adapter. The supplied metadata is merged for calls through those methods; it does not modify the original adapter.
+- Severity methods on the public adapter are generated from `LogLevel` rather than duplicated or implemented with a Proxy. Their TypeScript type is a mapped type.
+- Chaining after an emitted message (such as `LOG.debug(...).scope(...)`) is intentionally not supported.
 
-- Agree the public names and boundaries of basic logging, contextual logger creation, one-off contextual logging and view settings.
-- Agree whether the public logger object exposes factory methods such as `child()` or uses separate factories.
-- Specify per-message metadata without ambiguous positional arguments or breaking existing logging calls.
-- Define precedence when combining metadata objects, and how consumer modules can preserve the origin of events.
-- Decide whether a store retains entries, streams them to sinks, or both; define memory limits and opt-in behavior.
-- Decide whether PSR-3 compatibility means severity names only or the complete interface.
-- Agree behavior and caller location in browser DevTools, especially with conditional output.
-- Decide runtime targets (browser only vs Node.js and other JS runtimes), ESM/CJS support, and public TypeScript types.
-- Decide error handling for consumer-provided transport callbacks and serialization of circular data.
+## Record and origin
 
-## Excluded from scaffold
+- Every entry has separate `logInfo` (system information), `args` (original arguments) and `meta` (user metadata).
+- `logInfo.logger` references an immutable origin descriptor with `name?` and `parent?`. Logger paths are not rebuilt per emitted entry.
+- `LogEvent` dispatches synchronously to multiple listeners and does not retain history by default.
+- Entries and user arguments must not be mutated by listeners. The contract is documented, not enforced by deep freeze.
 
-Class-based logger prototype, LogEvent, and ConsoleModule implemented; meta API, view settings and network transport remain out of scope. See [Implementation](Implementation.md).
+## Modules and lifecycle
+
+- `LogLensModule` encapsulates module settings and dependencies, `filter(entry)`, `run(entry)`, `install()` and `uninstall()`.
+- `LogLensModuleManager` owns registrations, subscriptions, enable/disable state and module lifecycle.
+- `ConsoleModule` formats native console output.
+- `GlobalErrorModule` is an event **producer**: it forwards browser error events through an injected logger.
+- `NetworkModule` receives consumer-provided `transform(entry)`, `request(payload)` and optional `onError(error)` callbacks. Transport protocol, serialization and retry behavior are not prescribed.
+- Synchronous listener and module errors are isolated and reported to native `console.error`, without recursive logging through LogLens.
+- A test-only page-history module lives in `test/app/Module/PageLog.ts`. The core has no built-in event store.
+
+## Out of scope or still unresolved
+
+- Per-module output formatting beyond the existing ConsoleModule settings and any general view/scoped filtering API.
+- Original DevTools callsite and optional tracing support.
+- Final `dispose()` contract, producer-module enable/disable semantics and record immutability enforcement.
+- Runtime support matrix, packaging/release policy and full PSR-3 interface compatibility.
+
+See [Implementation](Implementation.md) for current behavior, [Tooling](Tooling.md) for builds and [work/CorePending.md](../../work/CorePending.md) for open decisions.
