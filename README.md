@@ -38,3 +38,22 @@ In the repository's **Settings → Pages**, select **GitHub Actions** as the Bui
 The site is separate from the npm library output.
 
 > Not yet publishable. `private: true` is intentional.
+
+## Logger prototype
+
+The experimental runtime implements PSR-3 **severity methods** (not the complete PSR-3 interface) and emits records shaped as `{ logInfo, args, meta }`.
+
+```ts
+import LOG, { createLogger, createLogEvent, createConsoleListener } from 'js-log-lens';
+
+LOG.debug('Default console logger', { state: 1 });
+
+const events = createLogEvent();
+const unsubscribe = events.subscribe(createConsoleListener({ includeMeta: true }));
+const wsLog = createLogger(events, { module: 'ws' });
+wsLog.info('Received', { id: 123 });
+unsubscribe();
+```
+
+The default logger sends messages to a console listener. Custom instances require explicit subscriptions.
+See [prototype architecture](doc/Architecture/Implementation.md) and [examples](example/).

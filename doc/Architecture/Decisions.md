@@ -23,4 +23,4 @@ Formatting and scope filtering are not yet part of the agreed core API.
 
 ## Excluded from scaffold
 
-No logger implementation, browser console formatter, view settings engine or built-in network transport has been selected yet.
+Prototype logger and console listener implemented; view settings and built-in network transport remain out of scope. See [Implementation](Implementation.md).

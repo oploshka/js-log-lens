@@ -5,7 +5,10 @@
   "description": "Configurable JavaScript logger with contextual metadata, flexible filtering, and PSR-3 severity levels.",
   "type": "module",
   "exports": {
-    ".": "./lib/index.js"
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
+    }
   },
   "files": [
     "lib"
@@ -31,12 +34,11 @@
   "scripts": {
     "dev": "vite --config vite.demo.config.ts",
     "build": "npm run build:library",
-    "build:library": "vite build --config vite.lib.config.ts",
+    "build:library": "vite build --config vite.lib.config.ts && tsc -p tsconfig.build.json",
     "build:demo": "vite build --config vite.demo.config.ts",
     "typecheck": "vue-tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "check:syntax": "node --check src/index.js",
     "pack:check": "npm run build:library && npm pack --dry-run --ignore-scripts"
   },
   "devDependencies": {
@@ -51,5 +53,6 @@
     "vue-tsc": "^3.0.0"
   },
   "main": "./lib/index.js",
-  "module": "./lib/index.js"
+  "module": "./lib/index.js",
+  "types": "./lib/index.d.ts"
 }

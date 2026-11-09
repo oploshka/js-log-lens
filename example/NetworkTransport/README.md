@@ -1,7 +1,20 @@
-# Example: network transport
+# Optional network transport
 
-This folder will contain an optional consumer implementation of a network-delivery callback.
-The core library must not assume a particular HTTP client, WebSocket protocol, endpoint, authentication method or retry policy.
+The original `logTransport.js` is an optional example instead of being hard-coded into the logger.
 
-TODO: add executable example after the transport callback contract is agreed.
-Do not copy this example into the npm runtime by default.
+```ts
+import { createLogEvent, createLogger } from '../../src/index';
+import { createNetworkListener } from './sendToServer';
+
+const events = createLogEvent();
+const stop = events.subscribe(createNetworkListener({
+  url: '/api/logs',
+  onError: (error) => console.error('Log delivery failed', error),
+}));
+const logger = createLogger(events, { module: 'ws' });
+logger.error('Something failed');
+stop();
+```
+
+This example deliberately does not enforce a URL, authentication, retry policy, or server payload contract.
+JSON serialization will fail for circular objects; consumers must supply suitable serialization for their transport.
