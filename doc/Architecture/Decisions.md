@@ -23,4 +23,4 @@ Formatting and scope filtering are not yet part of the agreed core API.
 
 ## Excluded from scaffold
 
-Prototype logger and console listener implemented; view settings and built-in network transport remain out of scope. See [Implementation](Implementation.md).
+Class-based logger prototype, LogEvent, and ConsoleModule implemented; meta API, view settings and network transport remain out of scope. See [Implementation](Implementation.md).

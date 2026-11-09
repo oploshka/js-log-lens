@@ -1,14 +1,19 @@
-export const LOG_LEVELS = [
-  'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug',
-] as const;
+export enum LogLevel {
+  Emergency = 'emergency',
+  Alert = 'alert',
+  Critical = 'critical',
+  Error = 'error',
+  Warning = 'warning',
+  Notice = 'notice',
+  Info = 'info',
+  Debug = 'debug',
+}
 
-export type tLogLevel = typeof LOG_LEVELS[number];
 export type tLogArgs = unknown[];
 export type tLogMeta = Record<string, unknown>;
-export type tTimestampProvider = () => number;
 
 export interface sLogInfo {
-  level: tLogLevel;
+  level: LogLevel;
   timestamp: number;
 }
 
@@ -20,10 +25,9 @@ export interface sLogStructure {
 
 export type tLogListener = (entry: sLogStructure) => void;
 
-export interface iLogEvent {
-  emitLog(entry: sLogStructure): void;
-  subscribe(listener: tLogListener): () => void;
-  unsubscribe(listener: tLogListener): void;
+/** A module may subscribe to events; returning a disposer is optional. */
+export interface iLogModule {
+  install(event: import('../LogEvent').LogEvent): void | (() => void);
 }
 
-export type iLogger = Readonly<Record<tLogLevel, (...args: tLogArgs) => void>>;
+export type tTimestampProvider = () => number;

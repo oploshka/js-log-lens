@@ -1,26 +1,23 @@
-import { createLogEvent } from './createLogEvent';
-import { createLogger } from './createLogger';
-import { createConsoleListener } from './Listener/Console';
-
-export { createLogEvent } from './createLogEvent';
-export { createLogger } from './createLogger';
-export { createConsoleListener, CONSOLE_LEVEL_STYLES } from './Listener/Console';
-export { LOG_LEVELS } from './Type/Log';
+export { LogLevel } from './Type/Log';
 export type {
-  iLogEvent,
-  iLogger,
+  iLogModule,
   sLogInfo,
   sLogStructure,
   tLogArgs,
-  tLogLevel,
   tLogListener,
   tLogMeta,
   tTimestampProvider,
 } from './Type/Log';
-export type { sConsoleListenerOptions } from './Listener/Console';
+export { LogEvent } from './LogEvent';
+export { Log } from './Log';
+export { LogLens } from './LogLens';
+export { ConsoleModule, CONSOLE_LEVEL_STYLES } from './Module/Console';
+export type { sConsoleLevelStyle, sConsoleModuleOptions } from './Module/Console';
 
-// Базовый логгер, совместимый с прежним способом вызова LOG.debug(...).
-export const logEvent = createLogEvent();
-logEvent.subscribe(createConsoleListener());
-export const LOG = createLogger(logEvent);
+import { LogLens } from './LogLens';
+import { ConsoleModule } from './Module/Console';
+
+/** Convenience logger; consumers can assemble their own instances. */
+export const defaultLens = new LogLens().use(new ConsoleModule());
+export const LOG = defaultLens.build();
 export default LOG;

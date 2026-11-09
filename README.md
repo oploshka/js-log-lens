@@ -41,19 +41,17 @@ The site is separate from the npm library output.
 
 ## Logger prototype
 
-The experimental runtime implements PSR-3 **severity methods** (not the complete PSR-3 interface) and emits records shaped as `{ logInfo, args, meta }`.
+The TypeScript prototype uses `Log`, `LogEvent`, `LogLens` and installable modules.
 
 ```ts
-import LOG, { createLogger, createLogEvent, createConsoleListener } from 'js-log-lens';
+import { LogLens, ConsoleModule } from 'js-log-lens';
 
-LOG.debug('Default console logger', { state: 1 });
-
-const events = createLogEvent();
-const unsubscribe = events.subscribe(createConsoleListener({ includeMeta: true }));
-const wsLog = createLogger(events, { module: 'ws' });
-wsLog.info('Received', { id: 123 });
-unsubscribe();
+const lens = new LogLens().use(new ConsoleModule());
+const log = lens.build();
+log.debug('Hello', { payload: true });
+lens.dispose();
 ```
 
-The default logger sends messages to a console listener. Custom instances require explicit subscriptions.
-See [prototype architecture](doc/Architecture/Implementation.md) and [examples](example/).
+The convenience `LOG` export is preconfigured with `ConsoleModule`.
+Records have `{ logInfo, args, meta }`; the contextual metadata API is TODO.
+See [implementation](doc/Architecture/Implementation.md).

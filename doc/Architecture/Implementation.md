@@ -1,31 +1,34 @@
-# Logger prototype
+# Class-based logger prototype
 
-## Data model
-
-Every call generates one entry. System data and consumer metadata are kept separate:
+## Entry format
 
 ```ts
 {
-  logInfo: { level: 'debug', timestamp: Date.now() },
+  logInfo: { level: LogLevel.Debug, timestamp: Date.now() },
   args: ['Message received', payload],
-  meta: { module: 'ws' },
+  meta: {},
 }
 ```
 
-## Boundaries
+## Responsibilities
 
-- `createLogger(logEvent, meta, now)` creates an immutable PSR-severity API.
-- `createLogEvent()` only emits, subscribes and unsubscribes.
-- `createConsoleListener()` is optional and preserves the original message arguments.
-- `example/NetworkTransport` and `example/GlobalError` migrate existing optional integrations.
-- `LOG` is a convenience default logger with a console listener; custom instances have no implicit destinations.
+- `Log`: eight PSR-3 severity methods, each forwarding a structured record to its `LogEvent`.
+- `LogEvent`: `emitLog`, `subscribe`, `unsubscribe`; no knowledge of filtering or modules.
+- `iLogModule`: `install(event)` may register listeners and return a disposer.
+- `ConsoleModule`: migrated console styling and output.
+- `LogLens`: assembler; `use(module)`, `build()` and `dispose()`.
+- `LOG`: convenience instance assembled with a console module.
 
-## TODO / design questions
+Modules are installed once at `build()`. `build()` is idempotent; new modules cannot be added after it.
+Disposing stops module subscriptions, but does not disable the previously returned logger.
 
-- Naming and public factory API (`LOG_META`, `scope`, `child`) are not final.
-- Decide whether the default console listener is desirable in the published package.
-- Clarify whether subscriber exceptions should propagate or be isolated (currently propagated).
-- Clarify custom logging-level filtering and asynchronous subscriber behavior (currently synchronous fan-out).
-- DevTools callsite may point to a listener rather than the caller; original `Proxy` path is not preserved.
-- Serialization, timestamp precision, and event identity are future discussion topics.
-- Agree final PSR-3 compatibility statement before npm publishing.
+## TODO
+
+- Contextual `meta` / scoped logger API; currently empty by design.
+- Caller location in browser DevTools: original console-bound `Proxy` cannot be preserved by the generic subscriber pipeline without further design.
+- Original `loglevel` environment-level filtering and critical-level server delivery are not automatic; these belong in optional modules/filters.
+- Confirm whether errors in one subscriber should propagate; currently they do.
+- Async listeners are not awaited. Define async and exception policies.
+- Decide whether modules may be registered dynamically after `build()`.
+- Extend or replace the network example with a proper `NetworkModule` when its configuration contract is agreed.
+- Clarify full PSR-3 compliance vs matching severity names.

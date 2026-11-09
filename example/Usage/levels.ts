@@ -1,6 +1,4 @@
-import LOG, { createLogger, logEvent } from '../../src/index';
-
-const LOG_WS = createLogger(logEvent, { module: 'ws' });
+import LOG, { LogEvent, Log, LogLens, ConsoleModule } from '../../src/index';
 
 LOG.emergency('Application unavailable');
 LOG.alert('Immediate attention required');
@@ -10,4 +8,10 @@ LOG.warning('Slow response');
 LOG.notice('State changed');
 LOG.info('Application started');
 LOG.debug('Debug state', { step: 2, isValid: false });
-LOG_WS.debug('Message received', { eventId: '123' });
+
+// Custom assembly without an implicit console.
+const event = new LogEvent();
+const lens = new LogLens(event).use(new ConsoleModule({ includeMeta: true }));
+const logger: Log = lens.build();
+logger.debug('WebSocket message', { eventId: '123' });
+lens.dispose();
