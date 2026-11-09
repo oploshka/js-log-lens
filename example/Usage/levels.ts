@@ -11,13 +11,14 @@ LOG.debug('Debug state', { step: 2, isValid: false });
 
 const event = new LogEvent();
 const lens = new LogLens(event);
-lens.modules.add('console', new ConsoleModule({ settings: { includeMeta: true } }));
+const consoleModule = new ConsoleModule({ settings: { includeMeta: true } });
+lens.modules.add('console', consoleModule);
 const logger: Log = lens.build();
 logger.debug('WebSocket message', { eventId: '123' });
 lens.modules.disable('console');
 logger.info('This is not printed');
 lens.modules.enable('console');
-lens.modules.get('console')?.mergeSettings({ includeMeta: false });
+consoleModule.mergeSettings({ includeMeta: false });
 logger.info('Printed again', LogLevel.Info);
 lens.modules.remove('console');
 lens.dispose();

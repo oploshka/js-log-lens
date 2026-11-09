@@ -1,9 +1,9 @@
 import { LogEvent } from './LogEvent';
-import { LogLensModule } from './LogLensModule';
+import type { iLogLensModule } from './LogLensModule';
 import type { sLogStructure } from './Type/Log';
 
 type tRegisteredModule = {
-  module: LogLensModule<any, any>;
+  module: iLogLensModule;
   enabled: boolean;
   unsubscribe: () => void;
 };
@@ -15,7 +15,7 @@ export class LogLensModuleManager {
 
   constructor(private readonly event: LogEvent) {}
 
-  add(name: string, module: LogLensModule<any, any>): this {
+  add(name: string, module: iLogLensModule): this {
     if (this.disposed) throw new Error('Module manager has been disposed');
     if (this.registry.has(name)) throw new Error(`Module already registered: ${name}`);
     module.install();
@@ -53,7 +53,7 @@ export class LogLensModuleManager {
     return this.getRequired(name).enabled;
   }
 
-  get(name: string): LogLensModule<any, any> | undefined {
+  get(name: string): iLogLensModule | undefined {
     return this.registry.get(name)?.module;
   }
 

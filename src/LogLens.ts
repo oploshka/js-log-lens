@@ -1,6 +1,6 @@
 import { Log } from './Log';
 import { LogEvent } from './LogEvent';
-import { LogLensModule } from './LogLensModule';
+import type { iLogLensModule } from './LogLensModule';
 import { LogLensModuleManager } from './LogLensModuleManager';
 import type { tTimestampProvider } from './Type/Log';
 
@@ -17,7 +17,7 @@ export class LogLens {
     this.logger = new Log(event, now);
   }
 
-  use(name: string, module: LogLensModule<any, any>): this {
+  use(name: string, module: iLogLensModule): this {
     this.modules.add(name, module);
     return this;
   }

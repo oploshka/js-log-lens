@@ -4,7 +4,7 @@ export { LogEvent } from './LogEvent';
 export { Log } from './Log';
 export { LogLens } from './LogLens';
 export { LogLensModule } from './LogLensModule';
-export type { sLogLensModuleOptions } from './LogLensModule';
+export type { iLogLensModule, sLogLensModuleOptions } from './LogLensModule';
 export { LogLensModuleManager } from './LogLensModuleManager';
 export { ConsoleModule, CONSOLE_LEVEL_STYLES } from './Module/Console';
 export type { sConsoleLevelStyle, sConsoleModuleSettings, sConsoleModuleDependencies } from './Module/Console';

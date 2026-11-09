@@ -5,11 +5,19 @@ export interface sLogLensModuleOptions<TSettings extends object, TDependencies e
   settings?: Partial<TSettings>;
 }
 
+/** Non-generic lifecycle contract used by the module manager. */
+export interface iLogLensModule {
+  install(): void;
+  uninstall(): void;
+  filter(entry: sLogStructure): boolean;
+  run(entry: sLogStructure): void;
+}
+
 /** A module handles entries; subscriptions and enablement belong to the manager. */
 export abstract class LogLensModule<
   TSettings extends object = Record<string, never>,
   TDependencies extends object = Record<string, never>,
-> {
+> implements iLogLensModule {
   protected dependencies: Partial<TDependencies>;
   protected settings: TSettings;
 
