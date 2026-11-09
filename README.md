@@ -58,3 +58,7 @@ lens.dispose();
 ```
 
 `LOG` is a convenience export with a console module. The record shape is `{ logInfo, args, meta }` with a hierarchical logger descriptor in `logInfo.logger`. See [implementation](doc/Architecture/Implementation.md).
+
+## Optional modules
+
+`GlobalErrorModule` forwards uncaught browser errors through a logger; `NetworkModule` accepts consumer-defined transformation and request callbacks. See [browser error example](example/GlobalError/README.md) and [network example](example/NetworkTransport/README.md).

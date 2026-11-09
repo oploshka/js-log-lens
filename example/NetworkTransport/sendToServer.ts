@@ -1,32 +1,33 @@
+import { LogLevel } from '../../src/Type/Log';
+import { NetworkModule } from '../../src/Module/Network';
 import type { sLogStructure } from '../../src/Type/Log';
 
-export interface sNetworkTransportOptions {
-  url: string;
-  fetchImpl?: typeof fetch;
-  onError?: (error: unknown) => void;
+export interface sNetworkPayload {
+  level: LogLevel;
+  timestamp: number;
+  meta: Record<string, unknown>;
+  args: unknown[];
 }
 
-/** Пример пользовательского HTTP-слушателя, без жёсткой привязки к серверу. */
-export function createNetworkListener(options: sNetworkTransportOptions) {
-  const fetchImpl = options.fetchImpl ?? fetch;
-
-  return (entry: sLogStructure): void => {
-    const payload = {
-      logInfo: entry.logInfo,
-      meta: entry.meta,
-      args: entry.args.map((value) => value instanceof Error
-        ? { name: value.name, message: value.message, stack: value.stack }
-        : value),
-    };
-
-    try {
-      void fetchImpl(options.url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      }).catch((error: unknown) => options.onError?.(error));
-    } catch (error) {
-      options.onError?.(error);
-    }
+/** Consumer-owned serialization; adapt Error objects before JSON.stringify. */
+export function toNetworkPayload(entry: sLogStructure): sNetworkPayload {
+  return {
+    level: entry.logInfo.level,
+    timestamp: entry.logInfo.timestamp,
+    meta: entry.meta,
+    args: entry.args.map((value) => value instanceof Error
+      ? { name: value.name, message: value.message, stack: value.stack }
+      : value),
   };
+}
+
+export function createServerLogModule(
+  request: (payload: sNetworkPayload) => PromiseLike<void> | void,
+): NetworkModule<sNetworkPayload> {
+  return new NetworkModule<sNetworkPayload>({
+    dependencies: {
+      transform: toNetworkPayload,
+      request: request,
+    },
+  });
 }

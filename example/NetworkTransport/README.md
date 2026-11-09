@@ -1,20 +1,37 @@
-# Optional network transport
+# Custom network module
 
-Network delivery stays in `example/`, not in the core.
+`NetworkModule` is framework-agnostic: consumers supply both record transformation
+and request dispatch. The library does not choose a URL, authentication, retry
+policy, or JSON serialization format.
 
 ```ts
-import { LogLens, LogEvent } from '../../src/index';
-import { createNetworkListener } from './sendToServer';
+import { LogLens, NetworkModule, LogLevel } from '../../src/index';
 
-const event = new LogEvent();
-const stop = event.subscribe(createNetworkListener({
-  url: '/api/logs',
-  onError: (error) => console.error('Log delivery failed', error),
+const lens = new LogLens();
+lens.modules.add('network', new NetworkModule({
+  dependencies: {
+    transform: (entry) => ({
+      level: entry.logInfo.level,
+      args: entry.args,
+      meta: entry.meta,
+    }),
+    request: async (payload) => {
+      const response = await fetch('/api/logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    },
+    onError: (error) => console.error('Delivery failed', error),
+  },
 }));
-const logger = new LogLens(event).build();
-logger.error('Something failed');
-stop();
+
+const log = lens.build();
+log.error('Request failed');
 ```
 
-A network module wrapping the existing listener can implement `iLogModule.install(event)`.
-The original transport serializes arguments and sends selected levels only; level filters and payload policy are intentionally left to the consumer adapter.
+To filter levels, extend `NetworkModule` and override `filter(entry)`;
+the manager calls it before `run(entry)`. Async operations are not awaited.
+The optional adapter in `sendToServer.ts` shows Error serialization. Circular
+structures require a consumer-provided serializer.

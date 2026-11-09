@@ -20,6 +20,10 @@ export type { iLogLensModule, sLogLensModuleOptions } from './LogLensModule';
 export { LogLensModuleManager } from './LogLensModuleManager';
 export { ConsoleModule, CONSOLE_LEVEL_STYLES } from './Module/Console';
 export type { sConsoleLevelStyle, sConsoleModuleSettings, sConsoleModuleDependencies } from './Module/Console';
+export { GlobalErrorModule } from './Module/GlobalError';
+export type { sGlobalErrorModuleDependencies } from './Module/GlobalError';
+export { NetworkModule } from './Module/Network';
+export type { sNetworkModuleDependencies } from './Module/Network';
 
 import { LogLens } from './LogLens';
 import { ConsoleModule } from './Module/Console';

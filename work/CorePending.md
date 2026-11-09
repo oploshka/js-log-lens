@@ -28,3 +28,7 @@ Synchronous module errors are isolated and reported to native console. `run()` m
 
 Node.js core tests added in `test/core`, using the built library; run `pnpm test` after installing dependencies.
 The full package build, TypeScript project checks, ESLint and real DevTools checks have not been executed in this environment because the npm registry is unreachable. A browser manual procedure is in `test/browser/ConsoleDevTools.md`.
+
+## Producer module enable/disable
+
+`GlobalErrorModule` listens to browser events in its lifecycle; manager `disable()` only stops LogEvent dispatch to its no-op `run()`. Decide whether producer modules need a separate active-state notification or should be removed to stop collection.

@@ -43,7 +43,10 @@ connection.meta({ requestId: 42 }).info('Message', { id: 123 });
 - `LogEvent` synchronously broadcasts records and never mutates them or awaits listeners.
 - `LogLensModule<TSettings, TDependencies>` provides default lifecycle, pass-through filter, abstract run and settings.
 - `LogLensModuleManager` owns registrations and subscriptions, calls `filter(entry)` before `run(entry)`, and manages lifecycle.
-- `ConsoleModule` provides console output; network and history remain independent modules.
+- `ConsoleModule` provides console output.
+- `GlobalErrorModule` registers browser `error` and `unhandledrejection` listeners in `install()`, removes them in `uninstall()`, and forwards errors through a logger dependency. As an event producer, it does not process LogEvent records in `run()`.
+- `NetworkModule<TPayload>` uses consumer-provided `transform(entry)` and `request(payload)` functions. Request failures are caught and reported via an optional `onError`; transport policy and data format belong to the consumer.
+- History remains an independent prospective module.
 
 `setSettings` replaces settings; `mergeSettings` shallow-merges. Defaults come from a concrete module's `getDefaultSettings()`; constructors accept `{ dependencies?, settings? }`.
 
@@ -60,3 +63,8 @@ Synchronous fan-out does not await async modules. Consumers must not mutate a sh
 - Browser DevTools callsite and optional lazy trace collection.
 - Final disposal semantics and module setting validation.
 - Exception isolation for asynchronous rejections and full PSR-3 interface compatibility.
+
+
+## Pending lifecycle detail
+
+Disabling a producer module such as `GlobalErrorModule` does not remove native browser listeners; that only happens on `remove()`/`dispose()`. Decide later whether manager enable/disable should affect producer activity too.
