@@ -5,7 +5,7 @@ and request dispatch. The library does not choose a URL, authentication, retry
 policy, or JSON serialization format.
 
 ```ts
-import { LogLens, NetworkModule, LogLevel } from '../../src/index';
+import { LogLens, NetworkModule } from 'js-log-lens';
 
 const lens = new LogLens();
 lens.modules.add('network', new NetworkModule({
@@ -33,5 +33,5 @@ log.error('Request failed');
 
 To filter levels, extend `NetworkModule` and override `filter(entry)`;
 the manager calls it before `run(entry)`. Async operations are not awaited.
-The optional adapter in `sendToServer.ts` shows Error serialization. Circular
+The optional adapter in `SendToServer.ts` shows Error serialization. Circular
 structures require a consumer-provided serializer.
