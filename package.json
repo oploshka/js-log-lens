@@ -2,7 +2,7 @@
   "name": "js-log-lens",
   "version": "0.0.0",
   "private": true,
-  "description": "Configurable JavaScript logging library (development scaffold)",
+  "description": "Configurable JavaScript logger with contextual metadata, flexible filtering, and PSR-3 severity levels.",
   "type": "module",
   "exports": {
     ".": "./lib/index.js"
@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/oploshka/js-log-lens/issues"
   },
-  "homepage": "https://github.com/oploshka/js-log-lens#readme",
+  "homepage": "https://oploshka.github.io/js-log-lens/",
   "keywords": [
     "logger",
     "logging",
