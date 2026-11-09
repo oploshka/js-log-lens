@@ -1,3 +1,60 @@
+<script setup lang="ts">
+import { computed, onUnmounted, ref } from 'vue';
+import { LogLevel } from 'js-log-lens';
+import type { sLogStructure } from 'js-log-lens';
+import { setupLogger } from '@example/Project/setupLogger';
+import { PageLogModule } from '@app/Module/PageLog';
+import { logContext, logLevel, logTemporaryMeta } from '@app/Usage/levels';
+
+const { lens, log } = setupLogger();
+const entries = ref<readonly sLogStructure[]>([]);
+const pageModule = new PageLogModule({
+  dependencies: {
+    onEntriesChange: (nextEntries) => {
+      entries.value = nextEntries;
+    },
+  },
+  settings: { maxEntries: 100 },
+});
+lens.modules.add('page', pageModule);
+
+const levels = Object.values(LogLevel);
+const pageEnabled = ref(true);
+const displayedEntries = computed(() => [...entries.value].reverse());
+
+function togglePageOutput(): void {
+  pageEnabled.value = !pageEnabled.value;
+  if (pageEnabled.value) {
+    lens.modules.enable('page');
+  } else {
+    lens.modules.disable('page');
+  }
+}
+
+function formatArg(value: unknown): string {
+  if (value instanceof Error) return `${value.name}: ${value.message}`;
+  if (typeof value === 'string') return value;
+  try {
+    const json = JSON.stringify(value);
+    return json ?? String(value);
+  } catch {
+    return '[Unserializable value]';
+  }
+}
+
+function origin(entry: sLogStructure): string {
+  const names: string[] = [];
+  let current = entry.logInfo.logger;
+  while (current) {
+    if (current.name) names.unshift(current.name);
+    current = current.parent;
+  }
+  return names.join(' / ') || 'Root';
+}
+
+onUnmounted(() => lens.dispose());
+</script>
+
 <template>
   <main class="page">
     <header class="topbar">
@@ -9,41 +66,103 @@
       </a>
     </header>
 
-    <section class="hero">
-      <p class="eyebrow">JavaScript logging library · In development</p>
+    <section class="intro">
+      <p class="eyebrow">
+        JavaScript logging library · Interactive playground
+      </p>
       <h1>See logs<br>in context.</h1>
       <p class="lead">
-        LogLens is an upcoming configurable JavaScript logger focused on contextual metadata,
-        module-level diagnostics, and flexible filtering.
+        Trigger logging methods on the left and inspect structured entries on the right.
+        Every action also goes to the browser console.
       </p>
-      <div class="actions">
-        <a class="primary" href="https://github.com/oploshka/js-log-lens/tree/develop">
-          Explore the source
-        </a>
-        <a class="secondary" href="https://github.com/oploshka/js-log-lens/blob/develop/doc/Architecture/Decisions.md">
-          Design decisions
-        </a>
+    </section>
+
+    <section class="workspace">
+      <div class="controls">
+        <div class="section-heading">
+          <h2>Log levels</h2>
+          <span>PSR-3</span>
+        </div>
+        <div class="level-grid">
+          <button
+            v-for="level in levels"
+            :key="level"
+            type="button"
+            class="level-button"
+            @click="logLevel(log, level)"
+          >
+            <span class="level-dot" :class="'dot-' + level" />
+            {{ level }}
+          </button>
+        </div>
+        <div class="section-heading second-heading">
+          <h2>Context</h2>
+          <span>meta &amp; child</span>
+        </div>
+        <div class="context-actions">
+          <button type="button" @click="logContext(log)">
+            child('WebSocket') → child('Connection')
+          </button>
+          <button type="button" @click="logTemporaryMeta(log)">
+            meta({ requestId }).debug(...)
+          </button>
+        </div>
+        <p class="tip">
+          Page history is a test-only LogLensModule. Production modules remain independent of Vue.
+        </p>
+      </div>
+
+      <div class="log-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Live entries</h2>
+            <span>{{ entries.length }} / 100 saved</span>
+          </div>
+          <div class="panel-actions">
+            <button type="button" @click="togglePageOutput">
+              {{ pageEnabled ? 'Pause' : 'Resume' }}
+            </button>
+            <button type="button" @click="pageModule.clear()">
+              Clear
+            </button>
+          </div>
+        </div>
+        <div class="entries" aria-live="polite">
+          <p v-if="displayedEntries.length === 0" class="empty">
+            No entries yet. Select a log level to start.
+          </p>
+          <article
+            v-for="(entry, index) in displayedEntries"
+            :key="entry.logInfo.timestamp + '-' + index"
+            class="entry"
+          >
+            <div class="entry-top">
+              <span class="entry-level" :class="'tag-' + entry.logInfo.level">
+                {{ entry.logInfo.level }}
+              </span>
+              <span class="entry-time">
+                {{ new Date(entry.logInfo.timestamp).toLocaleTimeString() }}
+              </span>
+            </div>
+            <div class="entry-source">
+              {{ origin(entry) }}
+            </div>
+            <div class="entry-args">
+              <div v-for="(arg, argIndex) in entry.args" :key="argIndex">
+                {{ formatArg(arg) }}
+              </div>
+            </div>
+            <pre v-if="Object.keys(entry.meta).length" class="entry-meta">{{ JSON.stringify(entry.meta, null, 2) }}</pre>
+          </article>
+        </div>
       </div>
     </section>
 
-    <section class="principles" aria-label="Project principles">
-      <article>
-        <h2>Reusable by design</h2>
-        <p>Keep framework- and project-specific integrations outside the logging core.</p>
-      </article>
-      <article>
-        <h2>Context-aware</h2>
-        <p>Model where diagnostic messages originate without mixing metadata and message arguments.</p>
-      </article>
-      <article>
-        <h2>Configurable output</h2>
-        <p>Make delivery and display decisions configurable; network integrations belong in examples.</p>
-      </article>
-    </section>
-
     <footer>
-      <span>js-log-lens</span>
-      <span>Public API under design · Not yet published to npm</span>
+      <span>js-log-lens · Experimental API</span>
+      <a href="https://github.com/oploshka/js-log-lens/tree/develop">
+        Source and documentation ↗
+      </a>
     </footer>
   </main>
 </template>
@@ -51,39 +170,64 @@
 <style>
 :root {
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #0d1018;
-  color: #e9edf7;
+  background: #0c111c;
+  color: #edf2fb;
   font-synthesis: none;
 }
-
 * { box-sizing: border-box; }
 body { margin: 0; }
 a { color: inherit; text-decoration: none; }
-
-.page { max-width: 1080px; padding: 0 36px; margin: auto; }
-.topbar { padding: 32px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a3040; }
-.wordmark { font-size: 24px; font-weight: 750; letter-spacing: -.05em; }
-.github { font-size: 14px; color: #aeb9d1; }
-.github:hover, .secondary:hover { color: #fff; }
-.hero { padding: 100px 0 92px; max-width: 790px; }
-.eyebrow { margin: 0 0 20px; font-size: 13px; text-transform: uppercase; letter-spacing: .13em; color: #91aef8; }
-h1 { margin: 0; font-size: clamp(56px, 10vw, 106px); line-height: .99; letter-spacing: -.075em; }
-.lead { max-width: 620px; margin: 30px 0 36px; font-size: 20px; line-height: 1.55; color: #b0bbcf; }
-.actions { display: flex; flex-wrap: wrap; gap: 12px; }
-.actions a { display: inline-block; padding: 13px 18px; font-size: 14px; border-radius: 8px; font-weight: 600; }
-.primary { background: #a4bdff; color: #101624; }
-.primary:hover { background: #c5d4ff; }
-.secondary { border: 1px solid #485168; color: #c5d0e4; }
-.principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding-bottom: 90px; }
-.principles article { border: 1px solid #30384a; border-radius: 12px; padding: 22px; background: #151a25; }
-h2 { font-size: 17px; letter-spacing: -.02em; margin: 0 0 10px; }
-.principles p { margin: 0; color: #aeb9cc; line-height: 1.55; font-size: 14px; }
-footer { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; padding: 26px 0 36px; border-top: 1px solid #2a3040; font-size: 13px; color: #8491aa; }
-@media (max-width: 700px) {
+button { font: inherit; cursor: pointer; }
+.page { max-width: 1440px; margin: auto; padding: 0 36px; }
+.topbar { padding: 26px 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #293246; }
+.wordmark { font-size: 23px; font-weight: 750; letter-spacing: -.05em; }
+.github { font-size: 13px; color: #aebbd2; }
+.intro { padding: 60px 0 40px; }
+.eyebrow { margin: 0 0 14px; color: #9bb8fb; text-transform: uppercase; letter-spacing: .15em; font-size: 12px; }
+h1 { margin: 0; font-size: clamp(48px, 7vw, 82px); line-height: 1; letter-spacing: -.07em; }
+.lead { color: #aebad1; max-width: 660px; line-height: 1.6; font-size: 16px; margin: 20px 0 0; }
+.workspace { display: grid; grid-template-columns: minmax(300px, 0.87fr) minmax(0, 1.4fr); gap: 20px; align-items: start; padding-bottom: 80px; }
+.controls, .log-panel { border: 1px solid #303a50; background: #151d2c; border-radius: 16px; overflow: hidden; }
+.controls { padding: 24px; }
+.section-heading { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
+.section-heading h2, .panel-header h2 { font-size: 17px; margin: 0; letter-spacing: -.02em; }
+.section-heading span, .panel-header span { font-size: 12px; color: #91a1bd; }
+.level-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.level-button, .context-actions button, .panel-actions button { color: #edf2fb; background: #212c41; border: 1px solid #3b4c67; border-radius: 9px; }
+.level-button { padding: 13px 12px; display: flex; align-items: center; gap: 10px; text-align: left; text-transform: capitalize; }
+button:hover { background: #304261; }
+button:focus-visible { outline: 2px solid #a6c1ff; outline-offset: 2px; }
+.level-dot { width: 8px; height: 8px; border-radius: 50%; background: #899bb4; }
+.dot-emergency, .dot-alert, .dot-critical, .dot-error { background: #f17e91; }
+.dot-warning { background: #eeb46e; }
+.dot-notice, .dot-info { background: #76b7fc; }
+.dot-debug { background: #a4b3c9; }
+.second-heading { margin-top: 32px; }
+.context-actions { display: flex; flex-direction: column; gap: 10px; }
+.context-actions button { padding: 13px 14px; text-align: left; font-size: 13px; }
+.tip { color: #8798b4; line-height: 1.6; font-size: 12px; margin: 24px 0 0; }
+.log-panel { min-height: 480px; }
+.panel-header { padding: 21px 23px; display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #303a50; }
+.panel-header > div:first-child { display: flex; flex-direction: column; gap: 5px; }
+.panel-actions { display: flex; gap: 8px; align-items: center; }
+.panel-actions button { padding: 8px 11px; font-size: 12px; }
+.entries { height: 500px; overflow: auto; }
+.empty { color: #90a1bd; font-size: 14px; text-align: center; padding: 78px 22px; }
+.entry { padding: 16px 23px; border-bottom: 1px solid #2a3548; }
+.entry-top { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.entry-level { display: inline-flex; border-radius: 5px; background: #354158; padding: 4px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.tag-error, .tag-critical, .tag-emergency, .tag-alert { background: #56303b; color: #ffa3ae; }
+.tag-warning { background: #534333; color: #ffd18a; }
+.tag-info, .tag-notice { background: #263f58; color: #a0d4ff; }
+.entry-time { color: #8798b4; font-size: 11px; font-variant-numeric: tabular-nums; }
+.entry-source { color: #91acd0; font-size: 12px; margin-top: 9px; }
+.entry-args { margin-top: 8px; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; white-space: pre-wrap; }
+.entry-meta { font-size: 11px; color: #b5c3d9; background: #101725; border: 1px solid #2c3a50; border-radius: 7px; margin: 12px 0 0; padding: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+footer { border-top: 1px solid #293246; padding: 25px 0 35px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; color: #8193af; font-size: 12px; }
+@media (max-width: 860px) {
   .page { padding: 0 20px; }
-  .topbar { padding: 24px 0; }
-  .hero { padding: 75px 0; }
-  .lead { font-size: 17px; }
-  .principles { grid-template-columns: 1fr; padding-bottom: 60px; }
+  .intro { padding: 48px 0 30px; }
+  .workspace { grid-template-columns: 1fr; }
+  .entries { height: 420px; }
 }
 </style>
