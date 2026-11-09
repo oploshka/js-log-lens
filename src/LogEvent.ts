@@ -1,12 +1,17 @@
 import type { sLogStructure, tLogListener } from './Type/Log';
+import { reportLogLensError } from './reportLogLensError';
 
-/** Delivers ready log records. Filtering belongs to subscribers/modules. */
+/** Synchronous fan-out; does not modify the entry or await listeners. */
 export class LogEvent {
   private readonly listeners = new Set<tLogListener>();
 
   emitLog(entry: sLogStructure): void {
     for (const listener of this.listeners) {
-      listener(entry);
+      try {
+        listener(entry);
+      } catch (error) {
+        reportLogLensError('Listener failed', error);
+      }
     }
   }
 

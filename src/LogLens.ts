@@ -2,6 +2,7 @@ import { Log } from './Log';
 import { LogEvent } from './LogEvent';
 import type { iLogLensModule } from './LogLensModule';
 import { LogLensModuleManager } from './LogLensModuleManager';
+import { reportLogLensError } from './reportLogLensError';
 import type { tTimestampProvider } from './Type/Log';
 
 /** Combines one event bus, its module manager, and the logger. */
@@ -23,7 +24,8 @@ export class LogLens {
   }
 
   build(): Log {
-    if (this.disposed) throw new Error('LogLens has been disposed');
+    // TODO: agree what should happen when build() is called after dispose().
+    if (this.disposed) reportLogLensError('Building logger after dispose()');
     return this.logger;
   }
 
