@@ -10,7 +10,8 @@ Configurable JavaScript logger with contextual metadata, flexible filtering, and
 
 ```sh
 pnpm install
-pnpm dev            # Vite app in test/app
+pnpm serve          # Vite test/app with live reload (HMR)
+pnpm dev            # Alias for the same development app
 pnpm build:library  # Build npm library to lib/
 pnpm build:demo     # Build GitHub Pages website to dist/
 pnpm typecheck

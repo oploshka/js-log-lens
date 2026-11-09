@@ -33,6 +33,7 @@
   },
   "scripts": {
     "dev": "vite --config vite.demo.config.ts",
+    "serve": "vite --config vite.demo.config.ts",
     "build": "pnpm build:library",
     "build:library": "vite build --config vite.lib.config.ts && tsc -p tsconfig.build.json",
     "build:demo": "vite build --config vite.demo.config.ts",

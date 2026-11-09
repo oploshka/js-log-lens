@@ -1,6 +1,6 @@
 # Interactive development playground
 
-Run `pnpm dev` to open the demo, or `pnpm build:demo` to generate the Pages site.
+Run `pnpm serve` (or `pnpm dev`) to open the Vite app with hot module replacement (HMR). Changes in `src/`, `example/` or `test/app/` are reflected while developing. Run `pnpm build:demo` for the production Pages build.
 
 The app has two pages, selected via URL hashes (no Vue Router dependency):
 - `#example` — interactive logging playground, with controls and a live history module.
