@@ -33,13 +33,14 @@
   },
   "scripts": {
     "dev": "vite --config vite.demo.config.ts",
-    "build": "npm run build:library",
+    "build": "pnpm build:library",
     "build:library": "vite build --config vite.lib.config.ts && tsc -p tsconfig.build.json",
     "build:demo": "vite build --config vite.demo.config.ts",
     "typecheck": "vue-tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "pack:check": "npm run build:library && npm pack --dry-run --ignore-scripts"
+    "pack:check": "pnpm build:library && pnpm pack --dry-run",
+    "test": "pnpm build:library && node --test test/core/*.test.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",

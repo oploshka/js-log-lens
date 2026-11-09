@@ -14,6 +14,7 @@ pnpm dev            # Vite app in test/app
 pnpm build:library  # Build npm library to lib/
 pnpm build:demo     # Build GitHub Pages website to dist/
 pnpm typecheck
+pnpm test           # Build library and run Node.js core tests
 pnpm lint
 pnpm pack:check
 ```
