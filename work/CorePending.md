@@ -23,3 +23,8 @@ Currently a rule for consumers; decide whether the library should enforce shallo
 ## Error and async corner cases
 
 Synchronous module errors are isolated and reported to native console. `run()` may schedule async work, and must handle its own rejections. Confirm expectations for async methods accidentally returning a rejected promise and the failure policy for exceptional lifecycle methods.
+
+## Verification status
+
+Node.js core tests added in `test/core`, using the built library; run `pnpm test` after installing dependencies.
+The full package build, TypeScript project checks, ESLint and real DevTools checks have not been executed in this environment because the npm registry is unreachable. A browser manual procedure is in `test/browser/ConsoleDevTools.md`.

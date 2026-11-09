@@ -39,7 +39,7 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "pack:check": "pnpm build:library && pnpm pack --dry-run",
+    "pack:check": "pnpm build:library && npm pack --dry-run --ignore-scripts",
     "test": "pnpm build:library && node --test test/core/*.test.mjs"
   },
   "devDependencies": {
