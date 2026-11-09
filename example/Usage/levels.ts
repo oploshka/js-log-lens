@@ -1,4 +1,4 @@
-import LOG, { LogEvent, Log, LogLens, ConsoleModule, LogLevel } from '../../src/index';
+import LOG, { LogAdapter, LogEvent, LogLens, ConsoleModule, LogLevel } from '../../src/index';
 
 LOG.emergency('Application unavailable');
 LOG.alert('Immediate attention required');
@@ -13,8 +13,13 @@ const event = new LogEvent();
 const lens = new LogLens(event);
 const consoleModule = new ConsoleModule({ settings: { includeMeta: true } });
 lens.modules.add('console', consoleModule);
-const logger: Log = lens.build();
-logger.debug('WebSocket message', { eventId: '123' });
+const logger: LogAdapter = lens.build();
+
+const ws = logger.child('WebSocket', { module: 'ws' });
+const connection = ws.child('Connection', { connectionId: '123' });
+connection.debug('Connected');
+connection.meta({ requestId: 42 }).info('Message received', { id: 123 });
+
 lens.modules.disable('console');
 logger.info('This is not printed');
 lens.modules.enable('console');

@@ -41,17 +41,19 @@ The site is separate from the npm library output.
 
 ## Logger prototype
 
-The TypeScript prototype uses `Log`, `LogEvent`, `LogLens` and installable modules.
+The TypeScript core uses `Log`, `LogAdapter`, `LogEvent`, `LogLens`, and installable modules.
 
 ```ts
 import { LogLens, ConsoleModule } from 'js-log-lens';
 
-const lens = new LogLens().use(new ConsoleModule());
+const lens = new LogLens().use('console', new ConsoleModule());
 const log = lens.build();
-log.debug('Hello', { payload: true });
+log.debug('Hello');
+
+const ws = log.child('WebSocket', { module: 'ws' });
+ws.meta({ requestId: 123 }).debug('Received', { payload: true });
+
 lens.dispose();
 ```
 
-The convenience `LOG` export is preconfigured with `ConsoleModule`.
-Records have `{ logInfo, args, meta }`; the contextual metadata API is TODO.
-See [implementation](doc/Architecture/Implementation.md).
+`LOG` is a convenience export with a console module. The record shape is `{ logInfo, args, meta }` with a hierarchical logger descriptor in `logInfo.logger`. See [implementation](doc/Architecture/Implementation.md).

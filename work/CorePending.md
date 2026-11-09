@@ -1,8 +1,11 @@
 # Open design questions — LogLens core
 
-## Meta
+## Meta (implemented)
 
-Define immutable contextual metadata inheritance, merging precedence, and per-call metadata without mixing it with `args`. Origin (module, tab, async event source) must survive propagation.
+- `LogAdapter.child(name, meta)` keeps a real `parentLog` reference and snapshots merged metadata.
+- `LogAdapter.meta(meta)` produces only severity methods for a one-off context.
+- System-origin information belongs in `logInfo.logger`, not user `meta`.
+- TODO: decide whether unnamed ancestors should appear in formatted paths and whether origin details beyond names are necessary.
 
 ## Trace / DevTools
 

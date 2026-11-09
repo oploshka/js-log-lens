@@ -1,7 +1,19 @@
 export { LogLevel } from './Type/Log';
-export type { sLogInfo, sLogStructure, tLogArgs, tLogListener, tLogMeta, tTimestampProvider } from './Type/Log';
+export type {
+  sLogInfo,
+  sLogStructure,
+  sLogOptions,
+  sLogOrigin,
+  tLogArgs,
+  tLogListener,
+  tLogMeta,
+  tLogMethods,
+  tTimestampProvider,
+} from './Type/Log';
 export { LogEvent } from './LogEvent';
 export { Log } from './Log';
+export { LogAdapter } from './LogAdapter';
+export type { sLogAdapterOptions } from './LogAdapter';
 export { LogLens } from './LogLens';
 export { LogLensModule } from './LogLensModule';
 export type { iLogLensModule, sLogLensModuleOptions } from './LogLensModule';

@@ -1,52 +1,62 @@
-# Class-based logger prototype
+# Class-based logger architecture
+
+## Public API
+
+```ts
+const log = lens.build();
+log.debug('Connected');
+
+const ws = log.child('WebSocket', { module: 'ws' });
+const connection = ws.child('Connection', { connectionId: '123' });
+connection.debug('Connected');
+connection.meta({ requestId: 42 }).info('Message', { id: 123 });
+```
+
+- `Log` keeps eight PSR-3 severity methods; each accepts an internal structured command `{ args, meta, logger? }`.
+- `LogAdapter` exposes variadic severity methods generated from `LogLevel` without a Proxy or eight duplicate wrappers. A mapped type describes the generated methods.
+- `child(name, meta)` returns a new full adapter referencing its parent. `child(meta)` also supports unnamed children.
+- `meta(meta)` returns **only** the eight severity methods, not another adapter; both forms share the same generator.
+- Each child captures an immutable shallow merge of parent and local metadata. New keys win. No modification of parent metadata.
+- `LogLens.build()` returns the root `LogAdapter`. All descendants share one internal `Log` and `LogEvent`.
 
 ## Entry structure
 
 ```ts
 {
-  logInfo: { level: LogLevel.Debug, timestamp: Date.now() },
+  logInfo: {
+    level: LogLevel.Debug,
+    timestamp: Date.now(),
+    logger: {
+      name: 'Connection',
+      parent: { name: 'WebSocket', parent: rootOrigin },
+    },
+  },
   args: ['Message received', payload],
-  meta: {},
+  meta: { module: 'ws', connectionId: '123' },
 }
 ```
 
-## Components
+`logInfo.logger` is a reference to the originating adapter's immutable descriptor. The descriptor links to the parent's descriptor; there is no per-message path traversal or array allocation. The adapter itself separately retains `parentLog`. Caller trace remains a separate TODO.
 
-- `Log` creates entries with the eight PSR-3 severity methods.
+## Modules
+
 - `LogEvent` synchronously broadcasts records and never mutates them or awaits listeners.
-- `LogLensModule<TSettings, TDependencies>` provides default `install()`, `uninstall()`, pass-through `filter()`, abstract `run()` and settings methods.
-- `LogLensModuleManager` owns registrations and subscriptions, calls `filter(entry)` before `run(entry)`, and manages module lifecycle.
-- `LogLens` assembles event, manager, and logger; `use(name, module)` delegates to manager.
+- `LogLensModule<TSettings, TDependencies>` provides default lifecycle, pass-through filter, abstract run and settings.
+- `LogLensModuleManager` owns registrations and subscriptions, calls `filter(entry)` before `run(entry)`, and manages lifecycle.
 - `ConsoleModule` provides console output; network and history remain independent modules.
 
-`setSettings` replaces the settings; `mergeSettings` shallow-merges them.
-Module defaults come from the concrete class's static `getDefaultSettings()` via `this.constructor`.
-TypeScript has no `abstract static`; the override is not compile-time enforced.
-Constructors receive `{ dependencies?, settings? }` through `super(options)`.
+`setSettings` replaces settings; `mergeSettings` shallow-merges. Defaults come from a concrete module's `getDefaultSettings()`; constructors accept `{ dependencies?, settings? }`.
 
-## Fault isolation: agreed principle
+## Fault isolation
 
-**The logging system must not stop the host application.**
+**The logging system must not stop the host application.** Module and listener failures are reported directly to native console and dispatch continues. Duplicate registration is diagnosed without throwing. `enable/disable` only toggle delivery; `add/remove` change registrations.
 
-- Direct `LogEvent` listeners and manager module `filter()` / `run()` are guarded independently. Failures are reported directly with `console.error` (never through LogLens to avoid recursion) and dispatch continues.
-- Reusing a module name or installing the same module instance twice is ignored with a diagnostic, not an exception.
-- `install()` failures are reported and the module is not registered.
-- `remove()` unsubscribes and attempts `uninstall()`; `uninstall()` failures do not block other modules.
-- `enable()` / `disable()` toggle delivery without calling lifecycle methods. `add()` / `remove()` register and unregister modules; these are **manager methods**, not module methods.
-- Unknown module names report an error rather than throwing.
+## Immutability / sync
 
-## Sync and immutability contracts
-
-- Dispatch is synchronous, but a module may initiate asynchronous work from `run()`; it owns promise rejection handling. No promise is awaited by the event bus or manager.
-- Producers and subscribers must not mutate the shared record. This is currently a **documented contract**, not a deep freeze: `args` can contain arbitrary application objects.
-- `dispose()` currently removes modules without invalidating the previously returned logger; its final behavior remains undecided.
+Synchronous fan-out does not await async modules. Consumers must not mutate a shared record, its args, or its metadata. The library performs a shallow copy of record metadata, not a deep freeze of user arguments.
 
 ## TODO
 
-- Contextual `meta` and scoped logger API.
-- Browser DevTools caller location and optional `getTrace`: a captured `Error` at log-call time can preserve the original stack, with lazy stack-string decoding/caching, but the record API is undecided. Ordinary memoization of a callsite across calls is incorrect.
-- Validate performance and browser support for the trace approach; `bind`/`Proxy` console callsite behavior is a separate problem.
-- Decide final `dispose()` contract and whether it belongs in public API.
-- Decide how to handle unexpectedly returned rejected promises from async listeners; modules are currently responsible for handling their own asynchronous errors.
-- Module settings validation and dependency requirements.
-- Full PSR-3 interface compatibility vs severity names only.
+- Browser DevTools callsite and optional lazy trace collection.
+- Final disposal semantics and module setting validation.
+- Exception isolation for asynchronous rejections and full PSR-3 interface compatibility.
